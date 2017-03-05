@@ -1,0 +1,34 @@
+---
+
+
+- name: edit defaults
+  lineinfile:
+    line: "{{ item }}"
+    dest: /etc/default/elasticsearch
+  register: defaults
+  with_items:
+    - "ES_JAVA_OPTS=\"{{ es_java_opts }}\""
+
+
+- name: edit elasticsearch.yml
+  template:
+    backup: yes
+    src: elasticsearch.yml.j2
+    dest: /etc/elasticsearch/elasticsearch.yml
+  register: config
+
+
+- name: restart elasticsearch
+  service:
+    name: elasticsearch
+    state: restarted
+    enabled: yes
+  when: defaults.changed or config.changed
+
+
+- name: start elasticsearch
+  service:
+    name: elasticsearch
+    state: started
+    enabled: yes
+  when: not defaults.changed or not config.changed

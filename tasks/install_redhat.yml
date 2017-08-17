@@ -1,0 +1,14 @@
+---
+
+
+- name: create yum repository
+  template:
+    src: etc/yum.repos.d/elasticsearch.repo
+    dest: /etc/yum.repos.d/elasticsearch.repo
+
+
+- name: install required packages
+  yum:
+    name: "{{ item }}"
+    state: present
+  with_items: "{{ es_packages_redhat }}"

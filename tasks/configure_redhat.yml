@@ -1,0 +1,7 @@
+---
+
+
+- name: edit elasticsearch.yml
+  template:
+    src: elasticsearch.yml.j2
+    dest: /etc/elasticsearch/elasticsearch.yml

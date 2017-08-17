@@ -1,0 +1,5 @@
+{{ ansible_managed | comment }}
+
+{% for option in es_java_opts %}
+{{ option }}
+{% endfor %}

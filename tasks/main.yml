@@ -1,9 +1,31 @@
 ---
 
 
-- include: install.yml
-  tags: [ 'install' ]
+- include: install_debian.yml
+  when: ansible_os_family == "Debian"
+  tags: install
 
 
-- include: configure.yml
-  tags: [ 'configure' ]
+- include: install_redhat.yml
+  when: ansible_os_family == "RedHat"
+  tags: install
+
+
+- include: configure_redhat.yml
+  when: ansible_os_family == "RedHat" and not es_cluster
+  tags: configure
+
+
+- include: configure_debian.yml
+  when: ansible_os_family == "Debian" and not es_cluster
+  tags: configure
+
+
+- include: configure_cluster_redhat.yml
+  when: ansible_os_family == "RedHat" and es_cluster
+  tags: configure
+
+
+- include: configure_cluster_debian.yml
+  when: ansible_os_family == "Debian" and es_cluster
+  tags: configure

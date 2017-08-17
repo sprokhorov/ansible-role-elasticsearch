@@ -1,0 +1,106 @@
+---
+
+
+- name: check environment vars
+  fail:
+    msg: es_node_name var is not defined
+  when: es_node_name == ''
+
+
+- name: create config directory
+  file:
+    name: "{{ item }}"
+    state: directory
+    group: "{{ es_group }}"
+    mode: 0660
+  with_items:
+    - "{{ es_config_directory }}_{{ es_node_name }}"
+    - "{{ es_config_directory }}_{{ es_node_name }}/scripts"
+
+
+- name: create default directories
+  file:
+    name: "{{ item }}"
+    state: directory
+    owner: "{{ es_user }}"
+    group: "{{ es_group }}"
+    mode: 0750
+  with_items:
+    - "/etc/elasticsearch_{{ es_node_name }}"
+    - "/var/lib/elasticsearch_{{ es_node_name }}"
+    - "/var/log/elasticsearch_{{ es_node_name }}"
+    - "/var/run/elasticsearch_{{ es_node_name }}"
+
+
+- name: create logs directory
+  file:
+    name: "{{ es_config['path.logs'] }}"
+    state: directory
+    owner: "{{ es_user }}"
+    group: "{{ es_group }}"
+    mode: 0750
+  when: es_config['path.logs'] is defined
+
+
+- name: create data directory
+  file:
+    name: "{{ es_config['path.data'] }}"
+    state: directory
+    owner: "{{ es_user }}"
+    group: "{{ es_group }}"
+    mode: 0750
+  when: es_config['path.data'] is defined
+
+
+- name: create configs
+  template:
+    src: "{{ item }}.j2"
+    dest: "{{ es_config_directory }}_{{ es_node_name }}/{{ item }}"
+    group: "{{ es_group }}"
+    mode: 0660
+  with_items:
+    - elasticsearch.yml
+    - jvm.options
+    - log4j2.properties
+
+
+- name: FIXME
+  template:
+    src: "{{ item }}.j2"
+    dest: "{{ es_config_directory }}/{{ item }}"
+    group: "{{ es_group }}"
+    mode: 0660
+  with_items:
+    - jvm.options
+
+
+- name: remove default systemd service
+  file:
+    name: /usr/lib/systemd/system/elasticsearch.service
+    state: absent
+
+
+- name: remove default environment file
+  file:
+    name: /etc/sysconfig/elasticsearch
+    state: absent
+
+
+- name: create systemd service 
+  template:
+    src: usr/lib/systemd/system/elasticsearch.service.j2
+    dest: "/usr/lib/systemd/system/elasticsearch_{{ es_node_name }}.service"
+  register: systemd_is_need_reload
+  
+
+- name: reload systemd
+  command: systemctl daemon-reload
+  when: systemd_is_need_reload.changed
+
+
+- name: start elasticsearch
+  service:
+    name: "elasticsearch_{{ es_node_name }}"
+    state: started
+    enabled: yes
+

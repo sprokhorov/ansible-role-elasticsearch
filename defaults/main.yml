@@ -1,5 +1,49 @@
 ---
 
 
-es_java_opts: ''
-es_config: {}
+es_config_directory: /etc/elasticsearch
+es_user: elasticsearch
+es_group: elasticsearch
+es_packages_redhat:
+  - java-1.8.0-openjdk
+  - elasticsearch
+
+
+# ATTENTION
+# You have to rewrite ALL this list for changes
+es_java_opts:
+  - -Xms2g
+  - -Xmx2g
+  - -XX:+UseConcMarkSweepGC
+  - -XX:CMSInitiatingOccupancyFraction=75
+  - -XX:+UseCMSInitiatingOccupancyOnly
+  - -XX:+AlwaysPreTouch
+  - -server
+  - -Xss1m
+  - -Djava.awt.headless=true
+  - -Dfile.encoding=UTF-8
+  - -Djna.nosys=true
+  - -Djdk.io.permissionsUseCanonicalPath=true
+  - -Dio.netty.noUnsafe=true
+  - -Dio.netty.noKeySetOptimization=true
+  - -Dio.netty.recycler.maxCapacityPerThread=0
+  - -Dlog4j.shutdownHookEnabled=false
+  - -Dlog4j2.disable.jmx=true
+  - -Dlog4j.skipJansi=true
+  - -XX:+HeapDumpOnOutOfMemoryError
+
+
+es_cluster: no
+es_cluster_name: ''
+es_node_name: ''
+es_config:
+  node.name: "{{ es_node_name | default('node1') }}"
+  cluster.name: "{{ es_cluster_name | default('cluster1') }}"
+  network.host: '0.0.0.0'
+  http.port: 9200
+  transport.tcp.port: 9300
+  path.data: "/var/lib/elasticsearch_{{ es_node_name | default('node1') }}"
+  path.logs: "/var/log/elasticsearch_{{ es_node_name | default('node1') }}"
+
+
+

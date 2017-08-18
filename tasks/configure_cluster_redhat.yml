@@ -99,7 +99,6 @@
     limit_type: '-'
     limit_item: memlock
     value: unlimited
-    comment: unlimited memory lock for elasticsearch
       
 
 - name: reload systemd

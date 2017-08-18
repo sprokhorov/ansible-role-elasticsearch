@@ -91,7 +91,16 @@
     src: usr/lib/systemd/system/elasticsearch.service.j2
     dest: "/usr/lib/systemd/system/elasticsearch_{{ es_node_name }}.service"
   register: systemd_is_need_reload
-  
+
+
+- name: change limits for elasticsearch
+  pam_limits:
+    domain: elasticsearch
+    limit_type: '-'
+    limit_item: memlock
+    value: unlimited
+    comment: unlimited memory lock for elasticsearch
+      
 
 - name: reload systemd
   command: systemctl daemon-reload
